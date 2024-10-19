@@ -19,7 +19,7 @@
   - [List of **Qatam CLI** commands](#list-of-qatam-cli-commands)
   - [Current status](#current-status)
   - [Support](#support)
-  - [Licence](#licence)
+  - [License](#license)
 
 ## Introduction
 
@@ -172,6 +172,6 @@ This project is currently under development and testing. There are two main stag
 
 <a href="https://www.buymeacoffee.com/Qatam" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" style="height: 60px !important;width: 217px !important;" ></a>
 
-## Licence
+## License
 
 [**GNU Affero General Public License v3.0**](https://github.com/AnasAlhwid/qatam-cli/blob/main/LICENSE)
