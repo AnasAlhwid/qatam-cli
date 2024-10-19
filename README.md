@@ -94,8 +94,8 @@
    Install-Module -Name qatam-cli
    ```
 
-> [!NOTE]
-> It will be installed under `"C:\Program Files\WindowsPowerShell\Modules\qatam-cli"` directory.
+    > [!NOTE]
+    > It will be installed under `"C:\Users\Your-User-Name\Documents\PowerShell\Modules"` or `"C:\Users\Your-User-Name\OneDrive\Documents\PowerShell\Modules"` directory.
 
 ## Update
 
