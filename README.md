@@ -27,8 +27,9 @@
 
 **Qatam CLI** manages different **_Services_**:
 
-1. Git
-2. GitHub
+1. Windows OS
+2. Git
+3. GitHub
 
 ## Prerequisites
 
@@ -128,14 +129,28 @@
 <details>
 <summary>Qatam CLI services</summary>
 
-| Command        | Description              |
-| :------------- | ------------------------ |
-| `g \| git`     | Manage Git operations    |
-| `gh \| github` | Manage GitHub operations |
+| Command        | Description                  |
+| :------------- | ---------------------------- |
+| `w \| windows` | Manage Windows OS operations |
+| `g \| git`     | Manage Git operations        |
+| `gh \| github` | Manage GitHub operations     |
 
 </details>
 
 ## List of **Qatam CLI** commands
+
+<details>
+<summary>Operations for Windows OS</summary>
+
+| Command              | Description                   |
+| :------------------- | ----------------------------- |
+| `cdir \| create-dir` | Create a local directory      |
+| `bp \| back-path`    | Navigate to the previous path |
+| `h \| help`          | Display Windows OS commands   |
+
+</details>
+
+<br>
 
 <details>
 <summary>Operations for Git</summary>
@@ -166,7 +181,7 @@
 
 ## Current status
 
-This project is currently under development and testing. There are two main stages in progress: **_Git_** and **_GitHub_**. Once these stages are completed, the CI/CD stage will begin, focusing on community support, bug fixes, user experience enhancements, new commands, and feature creation.
+This project is currently under development and testing. There are three main stages in progress: **_Windows OS_**, **_Git_**, and **_GitHub_**. Once these stages are completed, the CI/CD stage will begin, focusing on community support, bug fixes, user experience enhancements, new commands, and feature creation.
 
 ## Support
 
