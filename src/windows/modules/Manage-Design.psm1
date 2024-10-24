@@ -129,13 +129,12 @@ $string
 $($T * (78 - (($preMark.Length + $M.Length + $sufMark.Length + $space.Length) + ($preStr.Length + $Str.Length + $sufStr.Length) - $F.Length )))
 $(" " + $(Format-Color -CTC $CTC -Str $CT -NC $NC))
 "@
-    
+
         # Replace new lines with a space
         $myString = $shape -replace "`r`n", ""
-        
+
         Write-Output $myString | Out-Default
     }
-    
 }
 
 <#
