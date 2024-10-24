@@ -52,7 +52,14 @@ function Format-Shape {
         [string]$F, # String Format
         [string]$CTC = "clear", # Shape's corner type color.
         [string]$TC, # Shape's type color.
-        [string]$NC = "clear" # Set the next string color.
+        [string]$NC = "clear", # Set the next string color.
+
+        <#
+            There is 2 outputs for this function:
+                [0]. With "Write-Output" for terminal display. (Default)
+                [1]. With "Read-Host" for user input.
+        #>
+        [boolean]$WR = 0
     )
 
     # If string should be boxed or not.
@@ -88,25 +95,47 @@ function Format-Shape {
         $mark = $preMark + $(Format-Color -TC $TC -Str $M -NC $NC) + $sufMark + $space
     }
 
-    <#
-    For Shape design:
-    1. Set (If given) a starting shape at the begining of a line (ex. "|", " ", etc.).
-    2. Set (If given) a mark with square brackets (ex. "[!]", "[*]", etc.).
-    3. Set a string.
-    4. Set a shape (or default is a Space) for a fixed number (ex. "-", etc.).
-    5. Set (If given) an ending shape at the end of a line (ex. "|", " ", etc.).
-    #>
-    $shape = @"
+    if ($WR) {
+        <#
+            For Shape design:
+            1. Set (If given) a starting shape at the begining of a line (ex. "|", " ", etc.).
+            2. Set (If given) a mark with square brackets (ex. "[!]", "[*]", etc.).
+            3. Set a string.
+        #>
+        $shape = @"
+$($(Format-Color -CTC $CTC -Str $CT -NC $NC) + " ")
+$mark
+$string
+"@
+
+        # Replace new lines with a space
+        $myString = $shape -replace "`r`n", ""
+
+        Read-Host $myString
+    }
+    else {
+        <#
+            For Shape design:
+            1. Set (If given) a starting shape at the begining of a line (ex. "|", " ", etc.).
+            2. Set (If given) a mark with square brackets (ex. "[!]", "[*]", etc.).
+            3. Set a string.
+            4. Set a shape (or default is a Space) for a fixed number (ex. "-", etc.).
+            5. Set (If given) an ending shape at the end of a line (ex. "|", " ", etc.).
+        #>
+        $shape = @"
 $($(Format-Color -CTC $CTC -Str $CT -NC $NC) + " ")
 $mark
 $string
 $($T * (78 - (($preMark.Length + $M.Length + $sufMark.Length + $space.Length) + ($preStr.Length + $Str.Length + $sufStr.Length) - $F.Length )))
 $(" " + $(Format-Color -CTC $CTC -Str $CT -NC $NC))
 "@
-
-    # Replace new lines with a space
-    $myString = $shape -replace "`r`n", ""
-    Write-Output "$myString"
+    
+        # Replace new lines with a space
+        $myString = $shape -replace "`r`n", ""
+        
+        Write-Output $myString | Out-Default
+    }
+    
 }
 
 <#
