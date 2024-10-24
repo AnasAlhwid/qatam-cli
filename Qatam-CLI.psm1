@@ -1,6 +1,7 @@
 # Imports
 Import-Module "$PSScriptRoot\src\windows\modules\Manage-Design.psm1" -Force
 Import-Module "$PSScriptRoot\src\windows\modules\Manage-Git.psm1" -Force
+Import-Module "$PSScriptRoot\src\windows\modules\Manage-Windows.psm1" -Force
 
 # Links
 $urlQatamCLIGitHubReleases = "https://github.com/AnasAlhwid/qatam-cli/releases"
@@ -157,6 +158,15 @@ function Show-QatamCLIHelp {
     $(Format-Shape -CT "|")
 
     $(Format-Shape `
+            -M "w $(Format-Color -TC "clear" -Str "|" -NC "gold") windows" `
+            -CT "|" `
+            -TC "gold" `
+            -Str "Windows OS Service" `
+            -F $(Clear-Format -F "gold") `
+    )
+    $(Format-Shape -CT "|")
+
+    $(Format-Shape `
             -M "g $(Format-Color -TC "clear" -Str "|" -NC "gold") git" `
             -CT "|" `
             -TC "gold" `
@@ -228,6 +238,13 @@ function Qatam {
                 Show-QatamCLIHelp
                 Write-Output ""
             }
+            { $_ -in @("windows", "w") } {
+                <#
+                    - A function that displays or executes the "Windows" service commands.
+                    * The function imported from "$PSScriptRoot\src\windows\modules\Manage-Windows.psm1" file.
+                #>
+                Select-Windows -Command $Command
+            }
             { $_ -in @("git", "g") } {
                 <#
                     - A function that displays or executes the "Git" service commands.
@@ -256,6 +273,7 @@ function Qatam {
                         -M "!" `
                         -TC "yellow" `
                         -Str "Invalid command, run: $(Format-Color -TC "green" -Str "qatam help") to see all services." `
+                        -F "$(Clear-Format -F "green")" `
                 )
                 Write-Output ""
             }
