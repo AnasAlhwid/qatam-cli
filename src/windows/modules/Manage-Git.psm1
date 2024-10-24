@@ -1,5 +1,6 @@
 # Imports
 Import-Module "$PSScriptRoot\Manage-Design.psm1" -Force
+Import-Module "$PSScriptRoot\Manage-Windows.psm1" -Force
 
 # Links:
 $urlInstallWinGet = "https://github.com/AnasAlhwid/qatam-cli/blob/main/README.md#prerequisites"
@@ -44,8 +45,8 @@ function Get-GitInstallationStatus {
 # Function: Check Git's version
 function Get-GitVersion {
 
-    Write-Output "Checking Git version..."
-    Write-Output ""
+    Write-Output "Checking Git version..." | Out-Default
+    Write-Output "" | Out-Default
 
     try {
         # Fetching Git's version.
@@ -64,7 +65,7 @@ function Get-GitVersion {
 
         $(Format-Shape -T " " -CT "|")
         $(Format-Shape -T "-" -CT "*" -CTC "blue")
-        Write-Output ""
+        Write-Output "" | Out-Default
     }
     catch {
         $(Format-Shape `
@@ -72,7 +73,7 @@ function Get-GitVersion {
                 -TC "yellow" `
                 -Str "Failed to find Git version." `
         )
-        Write-Output $_.Exception.Message
+        Write-Output $_.Exception.Message | Out-Default
     }
 }
 
@@ -84,18 +85,18 @@ function Update-Git {
     Write-Output "Checking Git updates..."
 
     if ($PSCmdlet.ShouldProcess("Git", "Update Git using WinGet")) {
-        Write-Output ""
+        Write-Output "" | Out-Default
         try {
             $(Format-Shape `
                     -M "*" `
                     -TC "blue" `
                     -Str "Please be patient this may take a bit :)" `
             )
-            Write-Output ""
+            Write-Output "" | Out-Default
 
             # Fetching Git's updates using WinGet.
             winget upgrade --id Git.Git -e --source winget
-            Write-Output ""
+            Write-Output "" | Out-Default
         }
         catch {
             $(Format-Shape `
@@ -103,17 +104,17 @@ function Update-Git {
                     -TC "yellow" `
                     -Str "Failed to check Git updates." `
             )
-            Write-Output $_.Exception.Message
+            Write-Output $_.Exception.Message | Out-Default
         }
     }
     else {
-        Write-Output ""
+        Write-Output "" | Out-Default
         $(Format-Shape `
                 -M "x" `
                 -TC "red" `
                 -Str "Git update canceled." `
         )
-        Write-Output ""
+        Write-Output "" | Out-Default
     }
 }
 
@@ -122,21 +123,21 @@ function Install-Git {
     [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'High')]
     param ()
 
-    Write-Output "Installing Git..."
+    Write-Output "Installing Git..." | Out-Default
 
     if ($PSCmdlet.ShouldProcess("Git", "Install Git using WinGet")) {
-        Write-Output ""
+        Write-Output "" | Out-Default
         try {
             $(Format-Shape `
                     -M "*" `
                     -TC "blue" `
                     -Str "Please be patient this may take a bit :)" `
             )
-            Write-Output ""
+            Write-Output "" | Out-Default
 
             # Install Git via: https://git-scm.com/download/win using WinGet.
             winget install --id Git.Git -e --source winget
-            Write-Output ""
+            Write-Output "" | Out-Default
         }
         catch {
             $(Format-Shape `
@@ -144,17 +145,17 @@ function Install-Git {
                     -TC "yellow" `
                     -Str "Failed to install Git." `
             )
-            Write-Output $_.Exception.Message
+            Write-Output $_.Exception.Message | Out-Default
         }
     }
     else {
-        Write-Output ""
+        Write-Output "" | Out-Default
         $(Format-Shape `
                 -M "x" `
                 -TC "red" `
                 -Str "Git installation canceled." `
         )
-        Write-Output ""
+        Write-Output "" | Out-Default
     }
 }
 
@@ -163,21 +164,21 @@ function Uninstall-Git {
     [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'High')]
     param ()
 
-    Write-Output "Uninstalling Git..."
+    Write-Output "Uninstalling Git..." | Out-Default
 
     if ($PSCmdlet.ShouldProcess("Git", "Uninstall Git using WinGet")) {
-        Write-Output ""
+        Write-Output "" | Out-Default
         try {
             $(Format-Shape `
                     -M "*" `
                     -TC "blue" `
                     -Str "Please be patient this may take a bit :)" `
             )
-            Write-Output ""
+            Write-Output "" | Out-Default
 
             # Uninstalling Git using WinGet.
             winget uninstall --id Git.Git -e --source winget
-            Write-Output ""
+            Write-Output "" | Out-Default
         }
         catch {
             $(Format-Shape `
@@ -185,17 +186,17 @@ function Uninstall-Git {
                     -TC "yellow" `
                     -Str "Failed to uninstall Git." `
             )
-            Write-Output $_.Exception.Message
+            Write-Output $_.Exception.Message | Out-Default
         }
     }
     else {
-        Write-Output ""
+        Write-Output "" | Out-Default
         $(Format-Shape `
                 -M "x" `
                 -TC "red" `
                 -Str "Git uninstallation canceled." `
         )
-        Write-Output ""
+        Write-Output "" | Out-Default
     }
 }
 
@@ -339,7 +340,7 @@ function Select-Git {
                         -TC "yellow" `
                         -Str "Git is Not installed. Run: $(Format-Color -TC "green" -Str "qatam git install") to install it." `
                 )
-                Write-Output ""
+                Write-Output "" | Out-Default
             }
         }
         { $_ -in @("update", "upd") } {
@@ -357,7 +358,7 @@ function Select-Git {
                             -TC "yellow" `
                             -Str "Git is Not installed. Run: $(Format-Color -TC "green" -Str "qatam git install") to install it." `
                     )
-                    Write-Output ""
+                    Write-Output "" | Out-Default
                 }
             }
             else {
@@ -366,7 +367,7 @@ function Select-Git {
                         -TC "yellow" `
                         -Str "WinGet is Not installed. Visit: $(Format-Color -TC "gold" -Str "`e]8;;$urlInstallWinGet`e\qatam-cli/WinGet`e]8;;`e\.") to install it." `
                 )
-                Write-Output ""
+                Write-Output "" | Out-Default
             }
         }
         { $_ -in @("install", "i") } {
@@ -379,7 +380,7 @@ function Select-Git {
                             -TC "yellow" `
                             -Str "Git is installed. Run: $(Format-Color -TC "green" -Str "qatam git help") to see other Git commands." `
                     )
-                    Write-Output ""
+                    Write-Output "" | Out-Default
                 }
                 else {
                     # A function that install Git.
@@ -392,7 +393,7 @@ function Select-Git {
                         -TC "yellow" `
                         -Str "WinGet is Not installed. Visit: $(Format-Color -TC "gold" -Str "`e]8;;$urlInstallWinGet`e\qatam-cli/WinGet`e]8;;`e\.") to install it." `
                 )
-                Write-Output ""
+                Write-Output "" | Out-Default
             }
         }
         { $_ -in @("uninstall", "uni") } {
@@ -411,7 +412,7 @@ function Select-Git {
                             -Str "Git is Not installed. Run: $(Format-Color -TC "green" -Str "qatam git help") to see other Git commands." `
                             -F $(Clear-Format -F "green") `
                     )
-                    Write-Output ""
+                    Write-Output "" | Out-Default
                 }
             }
             else {
@@ -420,12 +421,12 @@ function Select-Git {
                         -TC "yellow" `
                         -Str "WinGet is Not installed. Visit: $(Format-Color -TC "gold" -Str "`e]8;;$urlInstallWinGet`e\qatam-cli/WinGet`e]8;;`e\.") to install it." `
                 )
-                Write-Output ""
+                Write-Output "" | Out-Default
             }
         }
         { $_ -in @("help", "h", "") } {
             Show-GitHelp
-            Write-Output ""
+            Write-Output "" | Out-Default
         }
         default {
             $(Format-Shape `
@@ -433,7 +434,7 @@ function Select-Git {
                     -TC "yellow" `
                     -Str "Invalid command, run: $(Format-Color -TC "green" -Str "qatam git help") to see all Git commands." `
             )
-            Write-Output ""
+            Write-Output "" | Out-Default
         }
     }
 }
