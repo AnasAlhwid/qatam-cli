@@ -131,9 +131,9 @@
 
 | Command        | Description                  |
 | :------------- | ---------------------------- |
-| `w \| windows` | Manage Windows OS operations |
-| `g \| git`     | Manage Git operations        |
-| `gh \| github` | Manage GitHub operations     |
+| `w \| windows` | Manage Windows OS Operations |
+| `g \| git`     | Manage Git Operations        |
+| `gh \| github` | Manage GitHub Operations     |
 
 </details>
 
@@ -142,11 +142,12 @@
 <details>
 <summary>Operations for Windows OS</summary>
 
-| Command              | Description                   |
-| :------------------- | ----------------------------- |
-| `cdir \| create-dir` | Create a local directory      |
-| `bp \| back-path`    | Navigate to the previous path |
-| `h \| help`          | Display Windows OS commands   |
+| Command              | Description                                                                                                                |
+| :------------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| `cdir \| create-dir` | Create a Local Directory                                                                                                   |
+| `gdir \| get-dir`    | - User Provide a Local Directory's Path. <br> - The Existence of the Local Directory Gets Verified. <br> - Navigate to it. |
+| `bp \| back-path`    | Navigate to the Previous Path                                                                                              |
+| `h \| help`          | Display Windows OS Commands                                                                                                |
 
 </details>
 
@@ -155,13 +156,15 @@
 <details>
 <summary>Operations for Git</summary>
 
-| Command            | Description          |
-| :----------------- | -------------------- |
-| `v \| version`     | Get Git version      |
-| `upd \| update`    | Update Git           |
-| `i \| install`     | Install Git          |
-| `uni \| uninstall` | Uninstall Git        |
-| `h \| help`        | Display Git commands |
+| Command             | Description                                                                   |
+| :------------------ | ----------------------------------------------------------------------------- |
+| `v \| version`      | Get Installed Git version                                                     |
+| `upd \| update`     | Update Git                                                                    |
+| `i \| install`      | Install Git                                                                   |
+| `uni \| uninstall`  | Uninstall Git                                                                 |
+| `bn \| branch-name` | Rename the Main Branch of a Local Git Repository.                             |
+| `cc \| config-cred` | Configure the Local Git Repository's Credintials (**Username** & **E-mail**). |
+| `h \| help`         | Display Git Commands                                                          |
 
 </details>
 
