@@ -122,9 +122,6 @@ function Set-Directory {
         Write-Output "" | Out-Default
 
         if ($name -eq "") {
-            # Set the path to the path selected by the user.
-            Set-Location $Path
-
             return $Path
         }
         else {
@@ -189,9 +186,6 @@ function Set-Directory {
 
                     switch ($choice) {
                         "1" {
-                            # Set the path to the path selected by the user.
-                            Set-Location $directoryPath
-
                             return $directoryPath
                         }
                         "2" {
@@ -211,9 +205,6 @@ function Set-Directory {
                                 )
                                 Write-Output "" | Out-Default
 
-                                # Set the path to the path selected by the user.
-                                Set-Location $directoryPath
-
                                 return $directoryPath
                             }
                             else {
@@ -229,6 +220,9 @@ function Set-Directory {
                             }
                         }
                         "3" {
+                            # Start from a fresh line after typing each command with a line divider.
+                            Clear-CurrentContent -Option "div"
+
                             # Break the "while" loop.
                             $loopVar = $false
                         }
@@ -253,9 +247,6 @@ function Set-Directory {
                         -Str "The '$name' directory successfully created." `
                 )
                 Write-Output "" | Out-Default
-
-                # Set the path to the path selected by the user.
-                Set-Location $directoryPath
 
                 return $directoryPath
             }
@@ -294,24 +285,31 @@ function Show-WindowsHelp {
     $(Format-Shape `
             -M "cdir $(Format-Color -TC "clear" -Str "|" -NC "bright_magenta") create-dir" `
             -CT "|" `
-            -Str "Create a local directory" `
+            -Str "Create a Local Directory" `
+            -TC "bright_magenta" `
+            -F $(Clear-Format -F "bright_magenta") `
+    )
+    $(Format-Shape `
+            -M "gdir $(Format-Color -TC "clear" -Str "|" -NC "bright_magenta") get-dir" `
+            -CT "|" `
+            -Str "Provide a Local Directory, Verify it, & Navigate to it" `
             -TC "bright_magenta" `
             -F $(Clear-Format -F "bright_magenta") `
     )
     $(Format-Shape `
             -M "bp $(Format-Color -TC "clear" -Str "|" -NC "bright_magenta") back-path" `
             -CT "|" `
-            -Str "Navigate to the previous path" `
+            -Str "Navigate to the Previous Path" `
             -TC "bright_magenta" `
             -F $(Clear-Format -F "bright_magenta") `
     )
     $(Format-Shape `
-    -M "h $(Format-Color -TC "clear" -Str "|" -NC "bright_magenta") help" `
-    -CT "|" `
-    -TC "bright_magenta" `
-    -Str "Display Git commands" `
-    -F $(Clear-Format -F "bright_magenta") `
-)
+            -M "h $(Format-Color -TC "clear" -Str "|" -NC "bright_magenta") help" `
+            -CT "|" `
+            -TC "bright_magenta" `
+            -Str "Display Git Commands" `
+            -F $(Clear-Format -F "bright_magenta") `
+    )
 
     $(Format-Shape -CT "|")
     $(Format-Shape -T "-" -CT "*" -CTC "bright_magenta")
@@ -333,7 +331,10 @@ function Show-WindowsHelp {
 #>
 function Select-Windows {
     param (
-        [string]$Command
+        [string]$Command,
+
+        # By default, suppress the values. Otherwise, return them.
+        [boolean]$DoReturn = $false
     )
 
     switch ($Command.ToLower()) {
@@ -344,12 +345,34 @@ function Select-Windows {
             # A function that gets the path the user want to work on.
             $directoryPath = Get-Directory
 
-            # Divider.
-            $(Format-Shape -T "-" -CT "+" -CTC "green")
-            Write-Output "" | Out-Default
+            # Start from a fresh line after typing each command with a line divider.
+            Clear-CurrentContent -Option "div"
 
             # A function that set/overwrite a new directory in the specified path from "Get-Directory".
             $directoryPath = Set-Directory -Path $directoryPath
+
+            # Set the path to the path selected by the user.
+            Set-Location $directoryPath
+
+            # If $true, return the values.
+            if ($DoReturn) {
+                return $directoryPath
+            }
+        }
+        { $_ -in @("get-dir", "gdir") } {
+            # Save the current path.
+            Push-Location
+
+            # A function that gets the path the user want to work on.
+            $directoryPath = Get-Directory
+
+            # Set the path to the path selected by the user.
+            Set-Location $directoryPath
+
+            # If $true, return the values.
+            if ($DoReturn) {
+                return $directoryPath
+            }
         }
         { $_ -in @("back-path", "bp") } {
             # Return back to the previous path.
