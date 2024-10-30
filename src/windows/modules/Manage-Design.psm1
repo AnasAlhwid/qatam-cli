@@ -243,20 +243,29 @@ function Clear-Format {
     New terminal line
 #>
 function Clear-CurrentContent {
-    Write-Output ""
-    Write-Output ""
+    param (
+        [string]$Option
+    )
+
+    if ($Option -eq "div") {
+        # Line Divider.
+        $(Format-Shape -T "-" -CT "+" -CTC "green")
+    }
+
+    Write-Output "" | Out-Default
+    Write-Output "" | Out-Default
 
     # Adjust to ensure old commands are pushed up.
     $linesToAdd = [console]::WindowHeight - 3
 
     for ($i = 0; $i -lt $linesToAdd; $i++) {
-        Write-Output ""
+        Write-Output "" | Out-Default
     }
 
     # Move cursor to the top-left of the console.
     [System.Console]::SetCursorPosition(0, 0)
 
-    Write-Output ""
+    Write-Output "" | Out-Default
 }
 
 # Export multiple functions
