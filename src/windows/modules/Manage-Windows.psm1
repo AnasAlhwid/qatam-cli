@@ -307,7 +307,7 @@ function Show-WindowsHelp {
             -M "h $(Format-Color -TC "clear" -Str "|" -NC "bright_magenta") help" `
             -CT "|" `
             -TC "bright_magenta" `
-            -Str "Display Git Commands" `
+            -Str "Display Windows OS Commands" `
             -F $(Clear-Format -F "bright_magenta") `
     )
 
