@@ -79,11 +79,11 @@ function Compare-QatamCLIVersion {
 
             $(Format-Shape -CT "|")
             $(Format-Shape -T "-" -CT "*" -CTC "green")
-            Write-Output ""
+            Write-Output "" | Out-Default
         }
     }
     catch {
-        Write-Output $_.Exception.Message
+        Write-Output $_.Exception.Message | Out-Default
     }
 }
 
@@ -126,7 +126,7 @@ function Show-QatamCLITerm {
 
     $(Format-Shape -CT "|")
     $(Format-Shape -T "-" -CT "*" -CTC "green")
-    Write-Host ""
+    Write-Output "" | Out-Default
 }
 
 # Function: Display list of services with help command
@@ -188,7 +188,7 @@ function Show-QatamCLIHelp {
             -M "h $(Format-Color -TC "clear" -Str "|" -NC "bright_magenta") help" `
             -CT "|" `
             -TC "bright_magenta" `
-            -Str "List service's commands" `
+            -Str "List Service's Commands" `
             -F $(Clear-Format -F "bright_magenta") `
     )
 
@@ -236,7 +236,7 @@ function Qatam {
 
                 # A function that displays 'Qatam CLI' services.
                 Show-QatamCLIHelp
-                Write-Output ""
+                Write-Output "" | Out-Default
             }
             { $_ -in @("windows", "w") } {
                 <#
@@ -263,7 +263,7 @@ function Qatam {
                         -TC "yellow" `
                         -Str "Sorry, this service is currently under development." `
                 )
-                Write-Output ""
+                Write-Output "" | Out-Default
             }
             { $_ -in @("help", "h") } {
                 Show-QatamCLIHelp
@@ -275,7 +275,7 @@ function Qatam {
                         -Str "Invalid command, run: $(Format-Color -TC "green" -Str "qatam help") to see all services." `
                         -F "$(Clear-Format -F "green")" `
                 )
-                Write-Output ""
+                Write-Output "" | Out-Default
             }
         }
     }
@@ -285,7 +285,7 @@ function Qatam {
                 -TC "yellow" `
                 -Str "No internet connection. Please check your internet connection & try again." `
         )
-        Write-Output ""
+        Write-Output "" | Out-Default
     }
 }
 
