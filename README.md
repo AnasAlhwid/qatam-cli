@@ -7,10 +7,11 @@
 - [Qatam CLI](#qatam-cli)
   - [Table of Content](#table-of-content)
   - [Introduction](#introduction)
+  - [Qatam CLI diagram](#qatam-cli-diagram)
   - [Prerequisites](#prerequisites)
-    - [For **Qatam CLI** usage:](#for-qatam-cli-usage)
-    - [For **Git** operations usage:](#for-git-operations-usage)
-    - [For **GitHub** operations usage:](#for-github-operations-usage)
+    - [For **Qatam CLI** usage](#for-qatam-cli-usage)
+    - [For **Git** operations usage](#for-git-operations-usage)
+    - [For **GitHub** operations usage](#for-github-operations-usage)
   - [Install](#install)
   - [Update](#update)
   - [Uninstall](#uninstall)
@@ -31,9 +32,146 @@
 2. Git
 3. GitHub
 
+## Qatam CLI diagram
+
+```mermaid
+---
+config:
+  markdownAutoWrap: false
+  theme: neutral
+  layout: elk
+  elk:
+    mergeEdges: true
+    nodePlacementStrategy: NETWORK_SIMPLEX
+---
+
+flowchart TB
+
+subgraph Qatam_Syntax
+    QatamCommand1[/"qatam &lt;service&gt; &lt;command&gt;"/]
+end
+
+subgraph Windows
+    direction LR
+
+    windowsCommand1[/"qatam windows &lt;command&gt;"/] ~~~ windowsCommand2[/"qatam w &lt;command&gt;"/]
+
+    click windowsCommand1 href "https://github.com/AnasAlhwid/qatam-cli/blob/main/docs/windows-commands.md#operations-for-windows-os" "Go to Windows section"
+
+    click windowsCommand2 href "https://github.com/AnasAlhwid/qatam-cli/blob/main/docs/windows-commands.md#operations-for-windows-os" "Go to Windows section"
+end
+
+subgraph Git
+    direction LR
+
+    gitCommand1[/"qatam git &lt;command&gt;"/] ~~~ gitCommand2[/"qatam g &lt;command&gt;"/]
+
+    click gitCommand1 href "https://github.com/AnasAlhwid/qatam-cli/blob/main/docs/git-commands.md#operations-for-git" "Go to Git section"
+
+    click gitCommand2 href "https://github.com/AnasAlhwid/qatam-cli/blob/main/docs/git-commands.md#operations-for-git" "Go to Git section"
+end
+
+subgraph GitHub
+    direction LR
+
+    gitHubCommand1[/"qatam github &lt;command&gt;"/] ~~~ gitHubCommand2[/"qatam gh &lt;command&gt;"/]
+
+    click gitHubCommand1 href "https://github.com/AnasAlhwid/qatam-cli/blob/main/docs/github-commands.md#operations-for-github" "Go to GitHub section"
+
+    click gitHubCommand2 href "https://github.com/AnasAlhwid/qatam-cli/blob/main/docs/github-commands.md#operations-for-github" "Go to GitHub section"
+end
+
+subgraph Help
+    direction LR
+
+    helpCommand1[/"qatam help"/] ~~~ helpCommand2[/"qatam h"/] ~~~ helpCommand3[/"qatam"/]
+end
+
+%% Paths
+Start(("Start")) mainL1@--> Qatam_Syntax
+Qatam_Syntax mainL2@--> Windows
+Qatam_Syntax mainL3@--> Git
+Qatam_Syntax mainL4@--> GitHub
+Qatam_Syntax mainL5@--> Help
+
+mainL1@{ animate: true }
+mainL2@{ animate: true }
+mainL3@{ animate: true }
+mainL4@{ animate: true }
+mainL5@{ animate: true }
+
+
+%% Windows
+Windows windowsL1@--> windowsDecisionId1{"`Internet connection available?`"}
+
+windowsDecisionId1 windowsL2@-- No --> windowsEnd(("End"))
+
+windowsDecisionId1 windowsL3@-- Yes --> windowsId1[[Performing a Windows operation based on the command used]]
+windowsId1 windowsL4@--> windowsEnd(("End"))
+
+windowsL1@{ animate: true }
+windowsL2@{ animate: true }
+windowsL3@{ animate: true }
+windowsL4@{ animate: true }
+
+
+%% Git
+Git gitL1@--> gitDecisionId1{"`Internet connection available?`"}
+gitDecisionId1 gitL2@-- No --> gitEnd(("End"))
+gitDecisionId1 gitL3@-- Yes --> gitId1[[Performing a Git operation based on the command used]]
+
+gitId1 gitL4@--> gitEnd(("End"))
+
+gitL1@{ animate: true }
+gitL2@{ animate: true }
+gitL3@{ animate: true }
+gitL4@{ animate: true }
+
+
+%% GitHub
+GitHub gitHubL1@--> gitHubDecisionId1{"`Internet connection available?`"}
+gitHubDecisionId1 gitHubL2@-- No --> gitHubEnd(("End"))
+gitHubDecisionId1 gitHubL3@-- Yes --> gitHubId1[[Performing a GitHub operation based on the command used]]
+
+gitHubId1 gitHubL4@--> gitHubEnd(("End"))
+
+gitHubL1@{ animate: true }
+gitHubL2@{ animate: true }
+gitHubL3@{ animate: true }
+gitHubL4@{ animate: true }
+
+
+%% Help
+Help helpL1@--> helpDecisionId1{"`Internet connection available?`"}
+helpDecisionId1 helpL2@-- No --> helpEnd(("End"))
+helpDecisionId1 helpL3@-- Yes (help, h) --> helpIOId1[/"`Instructional message: Display 'Qatam CLI' services & commands`"/]
+helpDecisionId1 helpL4@-- Yes (qatam) --> helpIOId2[/"`Display 'Qatam CLI' logo`"/]
+
+helpIOId1 helpL5@--> helpEnd(("End"))
+
+helpIOId2 helpL6@--> helpDecisionId2{"`Is there a newer version available?`"}
+helpDecisionId2 helpL7@-- No --> helpIOId3[/"`Informational message: Display 'Qatam CLI' terms`"/]
+helpDecisionId2 helpL8@-- Yes --> helpIOId4[/"`Instructional message: How to update 'Qatam CLI'`"/]
+
+helpIOId4 helpL9@--> helpIOId3
+
+helpIOId3 helpL10@--> helpIOId1
+
+helpL1@{ animate: true }
+helpL2@{ animate: true }
+helpL3@{ animate: true }
+helpL4@{ animate: true }
+helpL5@{ animate: true }
+helpL6@{ animate: true }
+helpL7@{ animate: true }
+helpL8@{ animate: true }
+helpL9@{ animate: true }
+helpL10@{ animate: true }
+```
+
 ## Prerequisites
 
-### For **Qatam CLI** usage:
+### For **Qatam CLI** usage
 
 1. **Windows** [**10**](https://www.microsoft.com/en-us/software-download/windows10)/[**11**](https://www.microsoft.com/en-us/software-download/windows11) **OS**
 
@@ -66,11 +204,11 @@
        ```
      - Or see [**other solutions**](https://learn.microsoft.com/en-us/powershell/scripting/install/installing-powershell-on-windows?view=powershell-7.4)
 
-### For **Git** operations usage:
+### For **Git** operations usage
 
 - [**Winget**](#prerequisites)
 
-### For **GitHub** operations usage:
+### For **GitHub** operations usage
 
 - **Git** (least **V 2.27.0**)
 
@@ -126,61 +264,19 @@
 
 ## List of **Qatam CLI** services
 
-<details>
-<summary>Qatam CLI services</summary>
-
 | Command        | Description                  |
 | :------------- | ---------------------------- |
 | `w \| windows` | Manage Windows OS Operations |
 | `g \| git`     | Manage Git Operations        |
 | `gh \| github` | Manage GitHub Operations     |
 
-</details>
-
 ## List of **Qatam CLI** commands
 
-<details>
-<summary>Operations for Windows OS</summary>
+[Operations for Windows OS](https://github.com/AnasAlhwid/qatam-cli/blob/main/docs/windows-commands.md#operations-for-windows-os)
 
-| Command              | Description                                                                                                                |
-| :------------------- | -------------------------------------------------------------------------------------------------------------------------- |
-| `cdir \| create-dir` | Create a Local Directory                                                                                                   |
-| `gdir \| get-dir`    | - User Provide a Local Directory's Path. <br> - The Existence of the Local Directory Gets Verified. <br> - Navigate to it. |
-| `bp \| back-path`    | Navigate to the Previous Path                                                                                              |
-| `h \| help`          | Display Windows OS Commands                                                                                                |
+[Operations for Git](https://github.com/AnasAlhwid/qatam-cli/blob/main/docs/git-commands.md#operations-for-git)
 
-</details>
-
-<br>
-
-<details>
-<summary>Operations for Git</summary>
-
-| Command             | Description                                                                   |
-| :------------------ | ----------------------------------------------------------------------------- |
-| `v \| version`      | Get Installed Git version                                                     |
-| `upd \| update`     | Update Git                                                                    |
-| `i \| install`      | Install Git                                                                   |
-| `uni \| uninstall`  | Uninstall Git                                                                 |
-| `bn \| branch-name` | Rename the Main Branch of a Local Git Repository.                             |
-| `cc \| config-cred` | Configure the Local Git Repository's Credintials (**Username** & **E-mail**). |
-| `h \| help`         | Display Git Commands                                                          |
-
-</details>
-
-<br>
-
-<details>
-<summary>Operations for GitHub (Currently under development)</summary>
-
-| Command          | Description                                                  |
-| :--------------- | ------------------------------------------------------------ |
-| `c \| create`    | Create a remote GitHub repository                            |
-| `rm \| remove`   | Delete a remote GitHub repository                            |
-| `con \| connect` | Create a link between local Git & remote GitHub repositories |
-| `h \| help`      | Display GitHub commands                                      |
-
-</details>
+[Operations for GitHub](https://github.com/AnasAlhwid/qatam-cli/blob/main/docs/github-commands.md#operations-for-github)
 
 ## Current status
 
