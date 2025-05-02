@@ -4,7 +4,10 @@ Import-Module "$PSScriptRoot\Manage-Windows.psm1" -Force
 
 # Links:
 $urlInstallWinGet = "https://github.com/AnasAlhwid/qatam-cli/blob/main/README.md#prerequisites"
-
+$urlGitRepositoryLayout = "https://git-scm.com/docs/gitrepository-layout"
+$urlGitignore = "https://git-scm.com/docs/gitignore"
+$urlGitattributes = "https://git-scm.com/docs/gitattributes"
+$urlEnv = "https://dotenvx.com/docs/env-file"
 
 # Function: Check WinGet installation status
 function Get-WinGetInstallationStatus {
@@ -232,11 +235,275 @@ function Get-LocalGitRepositoryStatus {
 
 <#
 .Synopsis
-    Rename the Local Git Repository's main branch
+    Create a local Git repository
+.INPUTS
+    [[-Path] <String>]
+    [[-Overwrite] <boolean>] = $false
+.FUNCTIONALITY
+    From the given PATH, create a local Git repository
+#>
+function Set-LocalGitRepository {
+    [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'High')]
+    param (
+        [string]$Path,
+        [boolean]$Overwrite = $false
+    )
+
+    if ($Overwrite -eq $true) {
+        if ($PSCmdlet.ShouldProcess($Path, "Overwrite the local Git repository")) {
+
+            # Construct the full PATH of the ".git" folder using the given PATH.
+            $gitDirectoryPath = Join-Path -Path $Path -ChildPath ".git"
+
+            # Check if the current path is in or under the directory being deleted.
+            if ((Get-Location).Path -like "$gitDirectoryPath*") {
+                # Move to parent or another safe directory
+                Set-Location -Path ([System.IO.Directory]::GetParent($gitDirectoryPath).FullName)
+            }
+
+            # Delete the existing ".git" folder.
+            Remove-Item -Path $gitDirectoryPath -Recurse -Force
+
+            Write-Output "" | Out-Default
+        }
+        else {
+            Write-Output "" | Out-Default
+            $(Format-Shape `
+                    -M "x" `
+                    -TC "red" `
+                    -Str "Overwrite the local Git repository canceled." `
+            )
+
+            Write-Output "" | Out-Default
+
+            return
+        }
+    }
+
+    # Display an informational message.
+    $(Format-Shape -T "-" -CT "*" -Str "Local Git Repository Creation" -CTC "bright_magenta" -StrBox 1)
+    $(Format-Shape -T " " -CT "|")
+
+    $(Format-Shape `
+            -M "!" `
+            -CT "|" `
+            -TC "yellow" `
+            -Str "The main branch will be created with the name $(Format-Color -TC "gold" -Str "main")." `
+            -F "$(Clear-Format -F @("gold"))" `
+    )
+
+    $(Format-Shape -T " " -CT "|")
+
+    $(Format-Shape `
+            -M "!" `
+            -CT "|" `
+            -TC "yellow" `
+            -Str "For details about the Git repository folder layout $(Format-Color -TC "gold" -Str "`e]8;;$urlGitRepositoryLayout`e\click here`e]8;;`e\")." `
+            -F "$(Clear-Format -F @("gold", "link"))$urlGitRepositoryLayout" `
+    )
+
+    $(Format-Shape -T " " -CT "|")
+    $(Format-Shape -T "-" -CT "*" -CTC "bright_magenta")
+
+    Write-Output "" | Out-Default
+
+    <#
+        - (git init): Initialize a local Git repository.
+        - (-C $Path): Specifies the path where the Git command should run.
+    #>
+    git -C $Path init | Out-Null
+
+    # (git branch -M "main"): Rename the main Git branch from "master" to "main". (Making it the default name).
+    git -C $Path branch -M "main" | Out-Null
+
+    if ($Overwrite -eq $true) {
+        $(Format-Shape `
+                -M "+" `
+                -TC "green" `
+                -Str "The local Git repository successfully overwritten." `
+        )
+    }
+    else {
+        $(Format-Shape `
+                -M "+" `
+                -TC "green" `
+                -Str "The local Git repository successfully created." `
+        )
+    }
+    Write-Output "" | Out-Default
+}
+
+<#
+.Synopsis
+    Create file(s) for the local Git repository's environment
 .INPUTS
     [[-Path] <String>]
 .FUNCTIONALITY
-    From the given PATH. Allow the user if wants to rename the Local Git Repository's main branch. Otherwise, keep it as the default name (main)
+    From the given PATH, create file(s) that helps the local Git repository environment
+#>
+function Set-LocalGitRepositoryFile {
+
+    # Suppress false positive because this function delegates the state-changing logic.
+    [Diagnostics.CodeAnalysis.SuppressMessage("PSUseShouldProcessForStateChangingFunctions", "", Justification = "Delegates state-changing operations to another function that already uses ShouldProcess")]
+
+    param (
+        [string]$Path
+    )
+
+    # Display an informational message.
+    $(Format-Shape -T "-" -CT "*" -Str "Git Environment File(s) Creation" -CTC "bright_magenta" -StrBox 1)
+    $(Format-Shape -T " " -CT "|")
+
+    $(Format-Shape `
+            -M "^" `
+            -CT "|" `
+            -TC "bright_magenta" `
+            -Str "Choose the file $(Format-Color -TC "gold" -Str "number(s)") to create." `
+            -F "$(Clear-Format -F "gold")" `
+    )
+    $(Format-Shape `
+            -CT "|" `
+            -Str "$(" " * 4)Choose multiple file $(Format-Color -TC "gold" -Str "numbers") separated by a $(Format-Color -TC "green" -Str "space") to create them." `
+            -F "$(Clear-Format -F @("gold", "green"))" `
+    )
+    $(Format-Shape `
+            -CT "|" `
+            -Str "$(" " * 4)Otherwise, press $(Format-Color -TC "green" -Str "enter") to skip the file creation." `
+            -F "$(Clear-Format -F "green")" `
+    )
+
+    $(Format-Shape -T " " -CT "|")
+
+    $(Format-Shape `
+            -M "1" `
+            -CT "|" `
+            -TC "bright_magenta" `
+            -Str "Create $(Format-Color -TC "gold" -Str "`e]8;;$urlGitignore`e\.gitignore`e]8;;`e\") file" `
+            -F "$(Clear-Format -F @("gold", "link"))$urlGitignore" `
+    )
+
+    $(Format-Shape -T " " -CT "|")
+
+    $(Format-Shape `
+            -M "2" `
+            -CT "|" `
+            -TC "bright_magenta" `
+            -Str "Create $(Format-Color -TC "gold" -Str "`e]8;;$urlGitattributes`e\.gitattributes`e]8;;`e\") file" `
+            -F "$(Clear-Format -F @("gold", "link"))$urlGitattributes" `
+    )
+
+    $(Format-Shape -T " " -CT "|")
+
+    $(Format-Shape `
+            -M "3" `
+            -CT "|" `
+            -TC "bright_magenta" `
+            -Str "Create $(Format-Color -TC "gold" -Str "`e]8;;$urlEnv`e\.env`e]8;;`e\") file" `
+            -F "$(Clear-Format -F @("gold", "link"))$urlEnv" `
+    )
+
+    $(Format-Shape -T " " -CT "|")
+
+    $(Format-Shape `
+            -M "!" `
+            -CT "|" `
+            -TC "yellow" `
+            -Str "For details about each file purpose $(Format-Color -TC "green" -Str "click") on the file name." `
+            -F "$(Clear-Format -F "green")" `
+    )
+
+    $(Format-Shape -T " " -CT "|")
+    $(Format-Shape -T "-" -CT "*" -CTC "bright_magenta")
+
+
+    # Prompt the user to select one or multiple file(s) to create.
+    $gitFile = $(Format-Shape `
+            -M "-" `
+            -TC "clear" `
+            -WR 1 `
+            -Str "Type the file(s) number" `
+    )
+    Write-Output "" | Out-Default
+
+    # When the "Enter" button is NOT pressed.
+    if ($gitFile -ne "") {
+
+        # Split the input by spaces
+        $operationList = $gitFile -split "\s+"
+
+        # A hashtable for storing only 1 value without any duplicates if presented.
+        $processedInput = @{}
+
+        foreach ($operation in $operationList) {
+
+            <#
+                - If a number is encountered for the first time, it's not yet in the hashtable, so it passes the check.
+
+                - If a number is in the hashtable, it will not be stored again and will skip to the next iteration of the loop.
+            #>
+            if ($processedInput.ContainsKey($operation)) {
+                continue
+            }
+
+            <#
+                * Add a key-value pair to the $processedInput hashtable.
+
+                - Storing each value for the first time as the following example:
+                    ("1" = $true)
+            #>
+            $processedInput[$operation] = $true
+
+            <#
+                1. Get the PATH that the user wants to work on.
+                2. Get the File name that the user wants to create.
+                3. Provide the type of the desired creation (directory or file).
+
+                - "Select-Windows" is a function imported from "$PSScriptRoot\Manage-Windows.psm1" file.
+            #>
+            switch ($operation) {
+                '1' {
+                    Select-Windows -Command "create-dir" -Path $Path -DirName ".gitignore" -ItemType "file"
+                }
+                '2' {
+                    Select-Windows -Command "create-dir" -Path $Path -DirName ".gitattributes" -ItemType "file"
+                }
+                '3' {
+                    Select-Windows -Command "create-dir" -Path $Path -DirName ".env" -ItemType "file"
+                }
+                default {
+                    # Start from a fresh line after typing each command with a line divider.
+                    Clear-CurrentContent -Option "div"
+
+                    # Propmt the user to retype the choice.
+                    $(Format-Shape `
+                            -M "!" `
+                            -TC "yellow" `
+                            -Str "Invalid choice '$operation'." `
+                    )
+
+                    Write-Output "" | Out-Default
+                }
+            }
+        }
+    }
+    else {
+        $(Format-Shape `
+                -M "x" `
+                -TC "red" `
+                -Str "Local Git repository environment file(s) creation canceled." `
+        )
+
+        Write-Output "" | Out-Default
+    }
+}
+
+<#
+.Synopsis
+    Rename the local Git repository's main branch
+.INPUTS
+    [[-Path] <String>]
+.FUNCTIONALITY
+    From the given PATH, rename the local Git repository's main branch. Otherwise, keep it with the default name (main)
 #>
 function Set-LocalGitRepositoryBranchName {
     [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'High')]
@@ -244,10 +511,24 @@ function Set-LocalGitRepositoryBranchName {
         [string]$Path
     )
 
-    # Check the local Git repository's main branch name.
+    <#
+        Check the local Git repository's main branch name.
+        - (-C $Path): Specifies the path where the Git command should run.
+    #>
     $mainBranchName = git -C $Path branch --format='%(refname:short)' --list main master
 
-    # Display an information message.
+    # Apply values based on the branch name.
+    if ([string]::IsNullOrWhiteSpace($mainBranchName)) {
+        $mainBranchName = "nameless"
+        $mainBranchNameColor = "red"
+        $mainBranchNameFormat = "red"
+    }
+    else {
+        $mainBranchNameColor = "gold"
+        $mainBranchNameFormat = "gold"
+    }
+
+    # Display an informational message.
     $(Format-Shape -T "-" -CT "*" -Str "Main Branch Name" -CTC "blue" -StrBox 1)
     $(Format-Shape -T " " -CT "|")
 
@@ -255,12 +536,12 @@ function Set-LocalGitRepositoryBranchName {
             -M "1" `
             -CT "|" `
             -TC "blue" `
-            -Str "Type a new $(Format-Color -TC "gold" -Str "NAME") to rename the main branch. Otherwise," `
+            -Str "Type a new $(Format-Color -TC "gold" -Str "name") to rename the main branch. Otherwise," `
             -F "$(Clear-Format -F "gold")" `
     )
     $(Format-Shape `
             -CT "|" `
-            -Str "$(" " * 4)press $(Format-Color -TC "green" -Str "Enter") to keep the default name." `
+            -Str "$(" " * 4)press $(Format-Color -TC "green" -Str "enter") to keep the default name." `
             -F "$(Clear-Format -F "green")" `
     )
 
@@ -273,15 +554,29 @@ function Set-LocalGitRepositoryBranchName {
             -Str "It's recommended to change the main branch name to $(Format-Color -TC "gold" -Str "main")." `
             -F "$(Clear-Format -F "gold")" `
     )
-    
+
+    $(Format-Shape -T " " -CT "|")
+
+    $(Format-Shape `
+            -M "*" `
+            -CT "|" `
+            -TC "blue" `
+            -Str "Staging the repository at least once after creation is" `
+    )
+
+    $(Format-Shape `
+            -CT "|" `
+            -Str "$(" " * 4)required for the name to be applied." `
+    )
+
     $(Format-Shape -T " " -CT "|")
 
     $(Format-Shape `
             -M "!" `
             -CT "|" `
             -TC "yellow" `
-            -Str "The main branch name of your local Git repository is $(Format-Color -TC "gold" -Str "$mainBranchName")." `
-            -F "$(Clear-Format -F "gold")" `
+            -Str "The main branch name of the local Git repository is $(Format-Color -TC "$mainBranchNameColor" -Str "$mainBranchName")." `
+            -F "$(Clear-Format -F $mainBranchNameFormat)" `
     )
 
     $(Format-Shape -T " " -CT "|")
@@ -292,7 +587,7 @@ function Set-LocalGitRepositoryBranchName {
             -M "-" `
             -TC "clear" `
             -WR 1 `
-            -Str "Type the main branch NAME" `
+            -Str "Type the main branch name" `
     )
 
     if ($gitBranchName -ne "") {
@@ -308,7 +603,7 @@ function Set-LocalGitRepositoryBranchName {
             $(Format-Shape `
                     -M "+" `
                     -TC "green" `
-                    -Str "The main branch successfully renamed to '$gitBranchName'." `
+                    -Str "The local Git repository's main branch successfully renamed to '$gitBranchName'." `
             )
         }
         else {
@@ -316,20 +611,19 @@ function Set-LocalGitRepositoryBranchName {
             $(Format-Shape `
                     -M "x" `
                     -TC "red" `
-                    -Str "Rename the main branch canceled." `
+                    -Str "Rename the local Git repository's main branch canceled." `
             )
         }
     }
-    Write-Output "" | Out-Default
 }
 
 <#
 .Synopsis
-    Set the Local Git Repository's credential configuration
+    Set the local Git repository's credential configuration
 .INPUTS
     [[-Path] <String>]
 .FUNCTIONALITY
-    From the given PATH. Set the Local Git Repository's configuration of the "Username" & "E-mail"
+    From the given PATH. Set the local Git repository's configuration of the "Username" & "E-mail"
 #>
 function Set-LocalGitRepositoryCredential {
     [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'High')]
@@ -337,49 +631,17 @@ function Set-LocalGitRepositoryCredential {
         [string]$Path
     )
 
-    # Display an information message.
-    $(Format-Shape -T "-" -CT "*" -Str "Credential Configuration" -CTC "blue" -StrBox 1)
-    $(Format-Shape -T " " -CT "|")
-
-    $(Format-Shape `
-            -M "2" `
-            -CT "|" `
-            -TC "blue" `
-            -Str "Type a $(Format-Color -TC "gold" -Str "Username") for the local Git repository's credentials.$(Format-Color -TC "red" -Str "*")" `
-            -F "$(Clear-Format -F @("gold", "red"))" `
-    )
-
-    $(Format-Shape -T " " -CT "|")
-
-    $(Format-Shape `
-            -M "3" `
-            -CT "|" `
-            -TC "blue" `
-            -Str "Type a $(Format-Color -TC "gold" -Str "E-mail") for the local Git repository's credentials.$(Format-Color -TC "red" -Str "*")" `
-            -F "$(Clear-Format -F @("gold", "red"))" `
-    )
-
-    $(Format-Shape -T " " -CT "|")
-
-    $(Format-Shape `
-            -M "!" `
-            -CT "|" `
-            -TC "yellow" `
-            -Str "($(Format-Color -TC "red" -Str "*")) Mandatory fields." `
-            -F "$(Clear-Format -F "red")" `
-    )
-
-    $(Format-Shape -T " " -CT "|")
-    $(Format-Shape -T "-" -CT "*" -CTC "blue")
-
-    # Check the exestance of both Username & E-mail configuration of the Local Git Repository.
+    <#
+        Check the existence of both Username & E-mail configuration of the local Git repository.
+        - (-C $Path): Specifies the path where the Git command should run.
+        - (config): Read and write Git configuration settings (like user info, aliases, settings, etc.).
+        - (--get): Retrieve the value of a specific configuration setting.
+    #>
     $gitUsername = git -C $Path config --get user.name
     $gitEmail = git -C $Path config --get user.email
 
     # Both "Username" & "E-mail" are configured.
     if ($gitUsername -and $gitEmail) {
-
-        Write-Output "" | Out-Default
 
         # Display an attention message.
         $(Format-Shape -T "-" -CT "*" -Str "Attention" -CTC "yellow" -StrBox 1)
@@ -389,7 +651,25 @@ function Set-LocalGitRepositoryCredential {
                 -M "!" `
                 -CT "|" `
                 -TC "yellow" `
-                -Str "The local Git repository credentials already configured." `
+                -Str "The local Git repository credentials are already configured." `
+        )
+
+        $(Format-Shape -T " " -CT "|")
+
+        $(Format-Shape `
+                -M "*" `
+                -CT "|" `
+                -TC "blue" `
+                -Str "Username: $gitUsername" `
+        )
+
+        $(Format-Shape -T " " -CT "|")
+
+        $(Format-Shape `
+                -M "*" `
+                -CT "|" `
+                -TC "blue" `
+                -Str "E-mail: $gitEmail" `
         )
 
         $(Format-Shape -T " " -CT "|")
@@ -517,6 +797,9 @@ function Set-LocalGitRepositoryCredential {
                                 -Str "Overwrite the configured credentials canceled." `
                         )
                         Write-Output "" | Out-Default
+
+                        # Break the "while" loop.
+                        $loopVar = $false
                     }
                 }
                 Default {
@@ -549,8 +832,6 @@ function Set-LocalGitRepositoryCredential {
             $gitCredential = "Username"
             $gitUserCredential = "name"
         }
-
-        Write-Output "" | Out-Default
 
         # Display an attention message.
         $(Format-Shape -T "-" -CT "*" -Str "Attention" -CTC "yellow" -StrBox 1)
@@ -600,9 +881,12 @@ function Set-LocalGitRepositoryCredential {
                 -M "1" `
                 -CT "|" `
                 -TC "bright_magenta" `
-                -Str "Add an $(Format-Color -TC "gold" -Str "$gitCredential") to the configured credentials" `
+                -Str "Set the $(Format-Color -TC "gold" -Str "$gitCredential") for the configured credentials" `
                 -F "$(Clear-Format -F "gold")" `
         )
+
+        $(Format-Shape -CT "|")
+
         $(Format-Shape `
                 -M "2" `
                 -CT "|" `
@@ -653,7 +937,7 @@ function Set-LocalGitRepositoryCredential {
                         break
                     }
 
-                    # Configure the credential for the user of the local Git repository.
+                    # Configure the user credential for the local Git repository.
                     git -C $Path config user.$gitUserCredential $gitUserInfo
 
                     $(Format-Shape `
@@ -740,6 +1024,9 @@ function Set-LocalGitRepositoryCredential {
                                 -Str "Overwrite the configured credentials canceled." `
                         )
                         Write-Output "" | Out-Default
+
+                        # Break the "while" loop.
+                        $loopVar = $false
                     }
                 }
                 Default {
@@ -755,6 +1042,42 @@ function Set-LocalGitRepositoryCredential {
     }
     # Both "Username" & "E-mail" are NOT configured.
     else {
+        # Display an informational message.
+        $(Format-Shape -T "-" -CT "*" -Str "Credential Configuration" -CTC "blue" -StrBox 1)
+        $(Format-Shape -T " " -CT "|")
+
+        $(Format-Shape `
+                -M "1" `
+                -CT "|" `
+                -TC "blue" `
+                -Str "Type a $(Format-Color -TC "gold" -Str "Username") for the local Git repository's credentials.$(Format-Color -TC "red" -Str "*")" `
+                -F "$(Clear-Format -F @("gold", "red"))" `
+        )
+
+        $(Format-Shape -T " " -CT "|")
+
+        $(Format-Shape `
+                -M "2" `
+                -CT "|" `
+                -TC "blue" `
+                -Str "Type an $(Format-Color -TC "gold" -Str "E-mail") for the local Git repository's credentials.$(Format-Color -TC "red" -Str "*")" `
+                -F "$(Clear-Format -F @("gold", "red"))" `
+        )
+
+        $(Format-Shape -T " " -CT "|")
+
+        $(Format-Shape `
+                -M "!" `
+                -CT "|" `
+                -TC "yellow" `
+                -Str "($(Format-Color -TC "red" -Str "*")) Mandatory fields." `
+                -F "$(Clear-Format -F "red")" `
+        )
+
+        $(Format-Shape -T " " -CT "|")
+        $(Format-Shape -T "-" -CT "*" -CTC "blue")
+
+
         # Loop until the user enters a non-empty Username.
         while ($true) {
             # Prompt the user to type the desired Username.
@@ -778,8 +1101,6 @@ function Set-LocalGitRepositoryCredential {
             }
             break
         }
-        # Configure the Username for the user credentials of the local Git repository.
-        git -C $Path config user.name $gitUsername
 
         # Loop until the user enters a non-empty E-mail.
         while ($true) {
@@ -804,13 +1125,17 @@ function Set-LocalGitRepositoryCredential {
             }
             break
         }
+
+        # Configure the Username for the user credentials of the local Git repository.
+        git -C $Path config user.name $gitUsername
+
         # Configure the E-mail for the user credentials of the local Git repository.
         git -C $Path config user.email $gitEmail
 
         $(Format-Shape `
                 -M "+" `
                 -TC "green" `
-                -Str "The credentials successfully configured." `
+                -Str "Local Git repository credentials were configured successfully" `
         )
         Write-Output "" | Out-Default
     }
@@ -855,7 +1180,7 @@ function Show-GitHelp {
     $(Format-Shape `
             -M "v $(Format-Color -TC "clear" -Str "|" -NC "bright_magenta") version" `
             -CT "|" `
-            -Str "Check Git Version / Installation Status" `
+            -Str "Check Git version / Installation status" `
             -TC "bright_magenta" `
             -F $(Clear-Format -F "bright_magenta") `
     )
@@ -888,7 +1213,7 @@ function Show-GitHelp {
             -M "h $(Format-Color -TC "clear" -Str "|" -NC "bright_magenta") help" `
             -CT "|" `
             -TC "bright_magenta" `
-            -Str "Display Git Commands" `
+            -Str "Display Git commands" `
             -F $(Clear-Format -F "bright_magenta") `
     )
 
@@ -904,10 +1229,18 @@ function Show-GitHelp {
     $(Format-Shape -CT "|")
 
     $(Format-Shape `
+            -M "c $(Format-Color -TC "clear" -Str "|" -NC "bright_magenta") create" `
+            -CT "|" `
+            -TC "bright_magenta" `
+            -Str "Create a new local Git repository & environment file(s)" `
+            -F $(Clear-Format -F "bright_magenta") `
+    )
+
+    $(Format-Shape `
             -M "bn $(Format-Color -TC "clear" -Str "|" -NC "bright_magenta") branch-name" `
             -CT "|" `
             -TC "bright_magenta" `
-            -Str "Rename the Main Branch of a Local Git Repository" `
+            -Str "Rename the local Git repository's main branch" `
             -F $(Clear-Format -F "bright_magenta") `
     )
 
@@ -915,7 +1248,7 @@ function Show-GitHelp {
             -M "cc $(Format-Color -TC "clear" -Str "|" -NC "bright_magenta") config-cred" `
             -CT "|" `
             -TC "bright_magenta" `
-            -Str "Configure the Local Git Repository's Credentials" `
+            -Str "Configure the local Git repository's credentials" `
             -F $(Clear-Format -F "bright_magenta") `
     )
 
@@ -931,9 +1264,9 @@ function Show-GitHelp {
 .EXAMPLE
     qatam git [[-Command] <String>]
 .INPUTS
-    <Command>: version, v, update, upd, install, i, uninstall, uni, help, h
+    <Command>: version, v, update, upd, install, i, uninstall, uni, create, c, branch-name, bn, config-cred, cc, help, h
 .OUTPUTS
-    List of Git commands
+    Git commands outputs
 .FUNCTIONALITY
     Manage the Git workflow
 #>
@@ -1040,6 +1373,136 @@ function Select-Git {
                 Write-Output "" | Out-Default
             }
         }
+        { $_ -in @("create", "c") } {
+            # A function that checks Git installation status.
+            if (Get-GitInstallationStatus) {
+                <#
+                    1. Get the PATH that the user wants to work on.
+
+                    - "Select-Windows" is a function imported from "$PSScriptRoot\Manage-Windows.psm1" file.
+                #>
+                $directoryPath = Select-Windows -Command "get-dir" -DoReturn $true
+
+                # Check the existence of a local Git repository in the given PATH.
+                $doesGitExist = Get-LocalGitRepositoryStatus -Path $directoryPath
+
+                if ($doesGitExist) {
+                    # Start from a fresh line after typing each command with a line divider.
+                    Clear-CurrentContent -Option "div"
+
+                    # Display an attention message.
+                    $(Format-Shape -T "-" -CT "*" -Str "Attention" -CTC "yellow" -StrBox 1)
+                    $(Format-Shape -T " " -CT "|")
+
+                    $(Format-Shape `
+                            -M "!" `
+                            -CT "|" `
+                            -TC "yellow" `
+                            -Str "A local Git repository already exist in the specified path." `
+                    )
+
+                    $(Format-Shape -T " " -CT "|")
+                    $(Format-Shape -T "-" -CT "*" -CTC "yellow")
+
+                    Write-Output "" | Out-Default
+
+                    # Display a choice message.
+                    $(Format-Shape -T "-" -CT "*" -Str "Choice" -CTC "bright_magenta" -StrBox 1)
+                    $(Format-Shape -CT "|")
+
+                    $(Format-Shape `
+                            -M "^" `
+                            -CT "|" `
+                            -TC "bright_magenta" `
+                            -Str "What would you like to do?" `
+                    )
+                    $(Format-Shape -CT "|")
+
+                    $(Format-Shape `
+                            -M "1" `
+                            -CT "|" `
+                            -TC "bright_magenta" `
+                            -Str "Continue with the existing local Git repository" `
+                    )
+                    $(Format-Shape `
+                            -M "2" `
+                            -CT "|" `
+                            -TC "bright_magenta" `
+                            -Str "Overwrite the existing local Git repository" `
+                    )
+
+                    $(Format-Shape -T " " -CT "|")
+                    $(Format-Shape -T "-" -CT "*" -CTC "bright_magenta")
+
+                    # Loop until the user enters a valid operation number.
+                    $loopVar = $true
+                    while ($loopVar) {
+
+                        # Prompt the user to type the desired operation number.
+                        $choice = $(Format-Shape `
+                                -M "^" `
+                                -TC "bright_magenta" `
+                                -WR 1 `
+                                -Str "Type the operation number" `
+                        )
+                        Write-Output "" | Out-Default
+
+                        switch ($choice) {
+                            "1" {
+                                # Start from a fresh line after typing each command with a line divider.
+                                Clear-CurrentContent -Option "div"
+
+                                # Create new file(s) in the given PATH.
+                                Set-LocalGitRepositoryFile -Path $directoryPath
+
+                                $loopVar = $false
+                            }
+                            "2" {
+                                # Start from a fresh line after typing each command with a line divider.
+                                Clear-CurrentContent -Option "div"
+
+                                # Create new file(s) in the given PATH.
+                                Set-LocalGitRepository -Path $directoryPath -Overwrite $true
+
+                                # Create new file(s) in the given PATH.
+                                Set-LocalGitRepositoryFile -Path $directoryPath
+
+                                $loopVar = $false
+                            }
+                            default {
+                                # Propmt the user to retype the choice.
+                                $(Format-Shape `
+                                        -M "!" `
+                                        -TC "yellow" `
+                                        -Str "Invalid choice, please try again." `
+                                )
+
+                                Write-Output "" | Out-Default
+                            }
+                        }
+                    }
+                }
+                else {
+                    # Start from a fresh line after typing each command with a line divider.
+                    Clear-CurrentContent -Option "div"
+
+                    # Create a new local Git repository in the given PATH.
+                    Set-LocalGitRepository -Path $directoryPath
+
+                    # Create new file(s) in the given PATH.
+                    Set-LocalGitRepositoryFile -Path $directoryPath
+                }
+            }
+            else {
+                $(Format-Shape `
+                        -M "!" `
+                        -TC "yellow" `
+                        -Str "Git is Not installed. Run: $(Format-Color -TC "green" -Str "qatam git help") to see other Git commands." `
+                        -F $(Clear-Format -F "green") `
+                )
+                Write-Output "" | Out-Default
+            }
+        }
         { $_ -in @("branch-name", "bn") } {
             # A function that checks Git installation status.
             if (Get-GitInstallationStatus) {
@@ -1053,18 +1516,20 @@ function Select-Git {
                 # Start from a fresh line after typing each command with a line divider.
                 Clear-CurrentContent -Option "div"
 
-                # Check the existence of a Local Git Repository in a given PATH.
+                # Check the existence of a local Git repository in a given PATH.
                 $doesGitExist = Get-LocalGitRepositoryStatus -Path $directoryPath
 
+                # If a local Git repository exist in the given PATH.
                 if ($doesGitExist) {
                     # Construct the full PATH of the ".git" folder using the given PATH.
                     $gitDirectoryPath = Join-Path -Path $directoryPath -ChildPath ".git"
 
-                    # The Local Git Repository exist in the given PATH.
+                    # Rename the local Git repository's main branch.
                     Set-LocalGitRepositoryBranchName -Path $gitDirectoryPath
                 }
+                # If a local Git repository doesn't exist in the given PATH.
                 else {
-                    # Display an missing message.
+                    # Display a missing message.
                     $(Format-Shape -T "-" -CT "*" -Str "Missing" -CTC "red" -StrBox 1)
                     $(Format-Shape -T " " -CT "|")
 
@@ -1072,7 +1537,7 @@ function Select-Git {
                             -M "!" `
                             -CT "|" `
                             -TC "yellow" `
-                            -Str "No Local Git Repository was found in the specified path." `
+                            -Str "No local Git repository was found in the specified path." `
                     )
                     $(Format-Shape `
                             -CT "|" `
@@ -1082,7 +1547,6 @@ function Select-Git {
 
                     $(Format-Shape -T " " -CT "|")
                     $(Format-Shape -T "-" -CT "*" -CTC "red")
-                    Write-Output "" | Out-Default
                 }
             }
             else {
@@ -1092,8 +1556,8 @@ function Select-Git {
                         -Str "Git is Not installed. Run: $(Format-Color -TC "green" -Str "qatam git help") to see other Git commands." `
                         -F $(Clear-Format -F "green") `
                 )
-                Write-Output "" | Out-Default
             }
+            Write-Output "" | Out-Default
         }
         { $_ -in @("config-cred", "cc") } {
             # A function that checks Git installation status.
@@ -1108,18 +1572,18 @@ function Select-Git {
                 # Start from a fresh line after typing each command with a line divider.
                 Clear-CurrentContent -Option "div"
 
-                # Check the existence of a Local Git Repository in a given PATH.
+                # Check the existence of a local Git repository in the given path.
                 $doesGitExist = Get-LocalGitRepositoryStatus -Path $directoryPath
 
                 if ($doesGitExist) {
-                    # Construct the full PATH of the ".git" folder using the given PATH.
+                    # Construct the full path of the ".git" folder using the given path.
                     $gitDirectoryPath = Join-Path -Path $directoryPath -ChildPath ".git"
 
-                    # The Local Git Repository exist in the given PATH.
+                    # Set the local Git repository's credentials.
                     Set-LocalGitRepositoryCredential -Path $gitDirectoryPath
                 }
                 else {
-                    # Display an missing message.
+                    # Display a missing message.
                     $(Format-Shape -T "-" -CT "*" -Str "Missing" -CTC "red" -StrBox 1)
                     $(Format-Shape -T " " -CT "|")
 
@@ -1127,7 +1591,7 @@ function Select-Git {
                             -M "!" `
                             -CT "|" `
                             -TC "yellow" `
-                            -Str "No Local Git Repository was found in the specified path." `
+                            -Str "No local Git repository was found in the specified path." `
                     )
                     $(Format-Shape `
                             -CT "|" `
@@ -1152,6 +1616,7 @@ function Select-Git {
         }
         { $_ -in @("help", "h", "") } {
             Show-GitHelp
+
             Write-Output "" | Out-Default
         }
         default {
